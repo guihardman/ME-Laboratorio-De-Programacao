@@ -85,5 +85,5 @@ def iniciar_jogo():
         print("🤝 EMPATE! Ambos caíram no campo de batalha.")
 
 
-if __name__ == "main":
+if __name__ == "__main__":
     iniciar_jogo()
