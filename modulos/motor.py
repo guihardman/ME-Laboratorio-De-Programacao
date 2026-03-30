@@ -5,14 +5,14 @@ from modulos.combate import calcular_dano_fisico
 from modulos.magia import consumir_mana, calcular_dano_magico
 from modulos.inventario import usar_pocao_cura
 
-def determinar_iniciativa(velocidade_p: int, velocidade_mob: int) -> str:
-    """Retorna 'p' se o jogador for mais rápido, ou 'mob' se o inimigo for. Desempata na moeda."""
-    if velocidade_p > velocidade_mob:
+def determinar_iniciativa(velocidade_p: int, velocidade_inimigo: int) -> str:
+    """Retorna 'p' se o jogador for mais rápido, ou 'inimigo' se o inimigo for. Desempata na moeda."""
+    if velocidade_p > velocidade_inimigo:
         return 'p'
-    elif velocidade_mob > velocidade_p:
-        return 'mob'
+    elif velocidade_inimigo > velocidade_p:
+        return 'inimigo'
     else:
-        return random.choice(['p', 'mob'])
+        return random.choice(['p', 'inimigo'])
     
 def verificar_vencedor(jogador: dict, inimigo: dict) -> str:
     """Verifica quem está vivo e retorna o status da partida."""
