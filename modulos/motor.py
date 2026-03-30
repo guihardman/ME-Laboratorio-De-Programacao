@@ -21,11 +21,11 @@ def verificar_vencedor(jogador: dict, inimigo: dict) -> str:
     inimigo_vivo = esta_vivo(inimigo)
 
     if jogador_vivo and inimigo_vivo:
-        return "Andamento" # Ninguém morreu ainda, o jogo continua
+        return "Andamento"
     elif jogador_vivo and not inimigo_vivo:
-        return "Jogador"   # Inimigo morreu, jogador ganha
+        return "Jogador"
     elif not jogador_vivo and inimigo_vivo:
-        return "Inimigo"   # Jogador morreu, tela de Game Over
+        return "Inimigo"
     else:
         return "Empate"
     
@@ -56,10 +56,8 @@ def executar_acao(atacante: dict, defensor: dict, tipo_acao: str, nome_magia: st
         
         # 3. Aplica o efeito (Dano ou Cura)
         if dados_magia["tipo"] == "dano":
-            # Somamos o poder_base da magia com o poder_magico do atacante!
             poder_total = dados_magia["poder_base"] + atacante['poder_magico']
             dano_magico = calcular_dano_magico(poder_magico=poder_total, resistencia_magica=defensor['resistencia_magica'])
             aplicar_dano(personagem=defensor, quantidade_dano=dano_magico)
         elif dados_magia["tipo"] == "cura":
-            # Se for cura, usa a lógica de inventário (ou uma nova em magia.py se preferir)
             usar_pocao_cura(personagem=atacante, valor_cura=dados_magia["poder_base"])

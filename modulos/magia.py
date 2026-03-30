@@ -12,7 +12,6 @@ def consumir_mana(personagem: dict, custo_mp: int) -> None:
     if personagem['mp_atual'] < custo_mp:
         raise ValueError("Mana insuficiente para conjurar a magia!")
 
-    # Se passou da validação, o código continua e desconta a mana
     personagem['mp_atual'] -= custo_mp
 
 

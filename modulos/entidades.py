@@ -22,7 +22,7 @@ def criar_personagem(nome: str, classe_escolhida: str) -> dict:
         "poder_magico": status["poder_magico"],
         "resistencia_magica": status["resistencia_magica"],
         "velocidade": status["velocidade"],
-        "magias": status["magias"] # Lista de feitiços que ele sabe usar
+        "magias": status["magias"]
     }
 
 def aplicar_dano(personagem: dict, quantidade_dano: int) -> None:
@@ -35,7 +35,7 @@ def aplicar_dano(personagem: dict, quantidade_dano: int) -> None:
     # Subtrai o dano da vida atual
     personagem["hp_atual"] -= quantidade_dano
     
-    # Trava de segurança: se a vida caiu abaixo de zero, nós forçamos a ser zero.
+    # Trava de segurança: se a vida caiu abaixo de zero, força a ser zero.
     if personagem["hp_atual"] < 0:
         personagem["hp_atual"] = 0
 
