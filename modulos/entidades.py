@@ -1,17 +1,28 @@
-def criar_personagem(nome: str, hp_maximo: int, ataque: int, defesa: int) -> dict:
-    """Fábrica que cria o dicionário do personagem."""
+from modulos.dados import CLASSES_DISPONIVEIS
+
+def criar_personagem(nome: str, classe_escolhida: str) -> dict:
+    """Fábrica que cria o personagem baseado na classe."""
     
-    # Validação de segurança (Vida não pode ser 0 ou negativa)
-    if hp_maximo <= 0:
-        raise ValueError("O HP máximo de um personagem deve ser maior que zero.")
+    classe_formatada = classe_escolhida.lower().strip()
+    if classe_formatada not in CLASSES_DISPONIVEIS:
+        raise ValueError(f"A classe '{classe_escolhida}' não existe!")
     
-    # Cria e retorna o dicionário
+    # Puxa os status baseados na classe
+    status = CLASSES_DISPONIVEIS[classe_formatada]
+    
     return {
         "nome": nome,
-        "hp_maximo": hp_maximo,
-        "hp_atual": hp_maximo, 
-        "ataque": ataque,
-        "defesa": defesa
+        "classe": classe_formatada.capitalize(),
+        "hp_maximo": status["hp_maximo"],
+        "hp_atual": status["hp_maximo"],
+        "mp_maximo": status["mp_maximo"],
+        "mp_atual": status["mp_maximo"],
+        "ataque": status["ataque"],
+        "defesa": status["defesa"],
+        "poder_magico": status["poder_magico"],
+        "resistencia_magica": status["resistencia_magica"],
+        "velocidade": status["velocidade"],
+        "magias": status["magias"] # Lista de feitiços que ele sabe usar
     }
 
 def aplicar_dano(personagem: dict, quantidade_dano: int) -> None:

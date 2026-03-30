@@ -21,6 +21,9 @@ def usar_pocao_cura(personagem: dict, valor_cura: int) -> None:
     """
     if personagem['hp_atual'] <= 0:
         raise ValueError("Não é possível curar um personagem que já está morto.")
+    
+    elif personagem['hp_atual'] >= personagem['hp_maximo']:
+        raise ValueError("A vida já está cheia! Não é possível curar mais.")
 
     # Aplica a cura
     personagem['hp_atual'] += valor_cura
