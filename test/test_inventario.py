@@ -2,8 +2,6 @@ import unittest
 
 # Importar funções
 from modulos.inventario import adicionar_item, remover_item, usar_pocao_cura
-
-
 class TestInventario(unittest.TestCase):
 
     #"teste de adicionar item"
