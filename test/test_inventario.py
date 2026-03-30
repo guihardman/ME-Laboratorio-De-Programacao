@@ -17,4 +17,4 @@ def usar_pocao_cura(personagem: dict, valor_cura: int) -> None:
         raise ValueError("Não é possível curar um personagem que já está morto.")
 
     personagem['hp_atual'] += valor_cura
-    personagem['hp_atual'] = min
+    personagem['hp_atual'] = min(personagem['hp_atual'], personagem['hp_maximo'])
