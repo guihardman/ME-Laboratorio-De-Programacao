@@ -50,5 +50,5 @@ def executar_acao(atacante: dict, defensor: dict, tipo_acao: str) -> None:
     elif tipo_acao == 'magia':
         # Acessa magia.py para gastar os mp e castar a magia
         consumir_mana(personagem=atacante, custo_mp=10)
-        dano_magico = calcular_dano_magico(poder=atacante['poder_magico'], resistencia=defensor['resistencia_magica'])
+        dano_magico = calcular_dano_magico(poder_magico=atacante['poder_magico'], resistencia_magica=defensor['resistencia_magica'])
         aplicar_dano(personagem=defensor, quantidade_dano=dano_magico)
