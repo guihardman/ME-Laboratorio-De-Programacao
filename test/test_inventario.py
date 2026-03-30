@@ -35,7 +35,7 @@ class TestInventario(unittest.TestCase):
         heroi = {'hp_atual': 0, 'hp_maximo': 100}
         with self.assertRaises(ValueError):
             usar_pocao_cura(heroi, 50)
-
+"excluir depois"
 
 if __name__ == '__main__':
     unittest.main()
