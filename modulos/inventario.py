@@ -4,7 +4,7 @@ def adicionar_item(inventario: list, item: str) -> None:
 
 
 def remover_item(inventario: list, item: str) -> None:
-    #"""Remove um item da lista. Levanta erro se o item não existir."""
+    """Remove um item da lista. Levanta erro se o item não existir."""
 
     # Verifica se o item NÃO está na lista
     if item not in inventario:
