@@ -36,7 +36,7 @@ class TestDados(unittest.TestCase):
         """Garante que as magias atribuídas às classes realmente existem no dicionário de magias."""
         for classe, atributos in CLASSES_DISPONIVEIS.items():
             for magia in atributos["magias"]:
-                # Se a classe 'guerreiro' tiver a magia 'luz divina', ela OBRIGATORIAMENTE tem de estar em MAGIAS_DISPONIVEIS
+                # Ex: se a classe 'guerreiro' tiver a magia 'luz divina', ela OBRIGATORIAMENTE tem de estar em MAGIAS_DISPONIVEIS
                 self.assertIn(magia, MAGIAS_DISPONIVEIS, 
                               f"A magia '{magia}' da classe '{classe}' não está registada em MAGIAS_DISPONIVEIS.")
 
