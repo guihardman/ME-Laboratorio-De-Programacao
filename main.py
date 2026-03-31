@@ -46,7 +46,7 @@ def iniciar_jogo():
         time.sleep(2)
         
     # Criando o boss
-    inimigo = criar_personagem(nome="Rei Goblin", classe_escolhida="guerreiro")
+    inimigo = criar_personagem(nome="Porca do Lauro", classe_escolhida="guerreiro")
     inimigo['hp_maximo'] = 150 
     inimigo['hp_atual'] = 150
 
