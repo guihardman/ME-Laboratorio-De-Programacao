@@ -29,7 +29,7 @@ def iniciar_jogo():
     print(" ⚔️  BEM-VINDO À ARENA RPG  ⚔️ ".center(45))
     print("=" * 45 + "\n")
     
-    # --- CRIAÇÃO DE PERSONAGEM ---
+    # CRIAÇÃO DE PERSONAGEM
     nome_jogador = input("✍️  Digite o nome do seu herói: ")
     print("\n🛡️  ESCOLHA SUA CLASSE:")
     print("  [1] Guerreiro  (Alto HP, Alto Dano)")
@@ -63,11 +63,11 @@ def iniciar_jogo():
         print(f"⚠️  O {inimigo['nome']} te pegou de surpresa!")
     time.sleep(2)
 
-    # --- GAME LOOP ---
+    # GAME LOOP
     while verificar_vencedor(jogador, inimigo) == "Andamento":
         limpar_tela()
         
-        # --- HUD (Interface de Status) ---
+        # HUD (Interface de Status)
         print("=" * 45)
         print(f"🧑 {jogador['nome'].upper()} ({jogador['classe']})")
         print(f"❤️  HP: {criar_barra(jogador['hp_atual'], jogador['hp_maximo'])} {jogador['hp_atual']:>3}/{jogador['hp_maximo']}")
@@ -125,7 +125,7 @@ def iniciar_jogo():
             turno_atual = 'p'
             time.sleep(2)
 
-    # --- FIM DE JOGO ---
+    # FIM DE JOGO
     limpar_tela()
     vencedor_final = verificar_vencedor(jogador, inimigo)
     
