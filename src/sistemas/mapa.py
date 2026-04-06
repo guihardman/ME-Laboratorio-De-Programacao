@@ -57,7 +57,7 @@ class Mapa:
         # Legenda Organizada
         print("\n  ┌── LEGENDA " + "─" * 40 + "┐")
         print("  │  [P] Herói    [#] Parede/Árvore    [.] Caminho    │")
-        print("  │  [B] Baú      [S] Saída do Nível   [C] Chefe      │")
+        print("  │  [B] Baú      [S] Saída do Nível                  │")
         print("  └" + "─" * 51 + "┘")
 
     def mover_jogador(self, direcao):
