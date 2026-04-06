@@ -12,6 +12,8 @@ from src.modelos.entidades import CATALOGO_PERSONAGENS, CATALOGO_INIMIGOS
 from src.sistemas.mapa import Mapa
 from src.sistemas.combate import iniciar_combate
 from src.utils.interface import limpar_tela, exibir_cabecalho
+from src.sistemas.npc import NPC
+from src.sistemas.npc_ia import conversar
 
 def preparar_equipe_inicial():
     """
@@ -94,9 +96,30 @@ def main():
     mapa = Mapa()
     jogando = True
 
+    anciao = NPC(
+        "Ancião da Floresta",
+        "sábio e misterioso",
+        "guarda os segredos da floresta"
+    )
+
     while jogando:
         mapa.desenhar()
-        acao = input("\n ⯈ Comandos [W, A, S, D] | Ação: ").lower()
+        acao = input("\n ⯈ Comandos [W, A, S, D, NPC] | Ação: ").lower()
+
+        if acao == "npc":
+            limpar_tela()
+            exibir_cabecalho("ENCONTRO")
+
+            print(f"\n 🧙 {anciao.nome} apareceu.\n")
+
+            msg = input(" ⯈ O que deseja dizer? ")
+
+            resposta = conversar(anciao, msg, party)
+
+            print(f"\n {anciao.nome}: {resposta}")
+
+            input("\nPressione ENTER para continuar...")
+            continue
         
         evento = mapa.mover_jogador(acao)
 
