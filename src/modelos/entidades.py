@@ -67,8 +67,8 @@ class Inimigo(Entidade):
 # ==========================================
 
 # 1. HERÓIS
-guerreiro = Personagem("Nakagawa (Guerreiro)", hp_max=100, mp_max=30, forca=18, inteligencia=5, defesa=8, agilidade=10)
-guerreiro.descricao = "Usa o próprio peso para potencializar seus golpes. Possui muita vida e defesa."
+guerreiro = Personagem("Prof. Fernando (Guerreiro)", hp_max=100, mp_max=30, forca=18, inteligencia=5, defesa=8, agilidade=10)
+guerreiro.descricao = "O maioral, o héroi de todos nós. Possui muita vida e defesa."
 guerreiro.ataques.append(CATALOGO_ATAQUES["corte_basico"])
 guerreiro.ataques.append(CATALOGO_ATAQUES["ataque_pesado"])
 guerreiro.ataques.append(CATALOGO_ATAQUES["quebra_escudos"])
