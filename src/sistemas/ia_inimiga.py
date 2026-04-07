@@ -62,7 +62,7 @@ def planejar_turno_inimigo(inimigo, equipe):
     tipo_acao = "magico" if habilidade in inimigo.magias else "fisico"
     
     return {
-        "ator": inimigo,          # CORREÇÃO: chave 'ator' incluída aqui na origem
+        "ator": inimigo,
         "tipo": "habilidade",
         "habilidade": habilidade,
         "tipo_habilidade": tipo_acao,

@@ -132,7 +132,6 @@ def main():
                 jogando = False
                 
         elif evento == "EVENTO_BAU":
-            # CORREÇÃO: baú agora sorteia e entrega um item real para a party
             abrir_bau(party)
             
         elif evento == "EVENTO_SAIDA":

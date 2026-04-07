@@ -17,7 +17,7 @@ class Magia:
     Representa uma habilidade mágica.
     Pode conter efeitos secundários que afetam o alvo e definir se deve mirar em aliados.
     """
-    # NOVO: Adicionamos o parâmetro alvo_aliado (padrão é False para magias de dano)
+  
     def __init__(self, nome, descricao, elemento, custo_mp, poder_base, chance_acerto=100, efeito_secundario=None, valor_efeito=0, alvo_aliado=False):
         self.nome = nome
         self.descricao = descricao
@@ -90,7 +90,7 @@ CATALOGO_MAGIAS = {
         elemento="cura", 
         poder_base=30, 
         custo_mp=15,
-        alvo_aliado=True  # NOVO: Indica que o jogador deve escolher um alvo da party
+        alvo_aliado=True
     ),
     "pele_de_pedra": Magia(
         nome="Pele de Pedra", 
@@ -100,6 +100,6 @@ CATALOGO_MAGIAS = {
         custo_mp=12,
         efeito_secundario="aumentar_defesa_alvo",
         valor_efeito=10,
-        alvo_aliado=True  # NOVO: Indica que o jogador deve escolher um alvo da party
+        alvo_aliado=True 
     )
 }

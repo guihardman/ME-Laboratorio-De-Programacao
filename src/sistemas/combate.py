@@ -134,8 +134,6 @@ def iniciar_combate(party, inimigos):
                 inimigo.resetar_defesa()
                 acao_inimiga = planejar_turno_inimigo(inimigo, party)
                 if acao_inimiga:
-                    # CORREÇÃO BUG 1: garante que a chave 'ator' existe na ação inimiga
-                    # para que a ordenação por agilidade na fase de iniciativa não quebre.
                     acao_inimiga["ator"] = inimigo
                     fila_acoes.append(acao_inimiga)
 

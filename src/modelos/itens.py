@@ -21,7 +21,7 @@ class ItemConsumivel:
 
 
 # ==========================================
-# CATÁLOGO DE ITENS (Banco de Dados)
+#           CATÁLOGO DE ITENS
 # ==========================================
 
 CATALOGO_ITENS = {

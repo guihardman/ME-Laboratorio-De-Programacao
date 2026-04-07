@@ -50,7 +50,7 @@ class Personagem(Entidade):
     def __init__(self, nome, hp_max, mp_max, forca, inteligencia, defesa, agilidade):
         super().__init__(nome, hp_max, mp_max, forca, inteligencia, defesa, agilidade)
         self.inventario = [] 
-        self.descricao = "" # Atributo para exibir o texto de lore/história no menu de seleção
+        self.descricao = ""
 
 
 class Inimigo(Entidade):
