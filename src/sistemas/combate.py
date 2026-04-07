@@ -1,6 +1,5 @@
 import random
 import time
-import copy
 
 from src.sistemas.ia_inimiga import planejar_turno_inimigo
 from src.utils.matematica import calcular_dano
