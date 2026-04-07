@@ -37,7 +37,7 @@ def aplicar_item(usuario, alvo, item):
         print(f"  💙 {usuario.nome} usou {item.nome} em {alvo.nome} e restaurou {cura} MP!")
     elif item.tipo_efeito == "buff_defesa":
         alvo.defesa_atual += item.valor_efeito
-        alvo.defesa_base += item.valor_efeito  # Torna permanente para a batalha
+        alvo.defesa_base += item.valor_efeito 
         print(f"  🛡️  {usuario.nome} usou {item.nome} em {alvo.nome}! Defesa aumentou em {item.valor_efeito}!")
 
 def iniciar_combate(party, inimigos):

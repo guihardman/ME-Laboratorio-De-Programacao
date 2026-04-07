@@ -98,7 +98,7 @@ def preparar_equipe_inicial():
 def main():
     """Função principal que gerencia o fluxo de exploração do mapa."""
     limpar_tela()
-    exibir_cabecalho("RPG: O DESPERTAR DO PYTHON")
+    exibir_cabecalho("RPG: O DESPERTAR DA PORCA")
     time.sleep(1.5)
     
     party = preparar_equipe_inicial()
