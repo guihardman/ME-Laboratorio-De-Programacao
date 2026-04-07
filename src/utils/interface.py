@@ -1,14 +1,16 @@
 """
 Módulo: interface.py
 Descrição: Gerencia todos os menus e a exibição de informações no terminal.
-Isola a interação com o usuário (prints e inputs) da lógica de combate.
+Isola a interação com o usuário (prints e inputs) da lógica central do jogo.
 """
 
 import os
 
+
 def limpar_tela():
     """Limpa o terminal independentemente do sistema operacional."""
     os.system('cls' if os.name == 'nt' else 'clear')
+
 
 def exibir_cabecalho(texto):
     """Cria um cabeçalho padronizado com bordas duplas ASCII."""
@@ -17,56 +19,56 @@ def exibir_cabecalho(texto):
     print("║" + texto.upper().center(tamanho - 2) + "║")
     print("╚" + "═" * (tamanho - 2) + "╝")
 
+
 def exibir_status_batalha(party, inimigos):
     """Mostra o HP e MP de todos os envolvidos no combate em formato de painel."""
     tamanho = 56
     exibir_cabecalho("STATUS DA BATALHA")
     
-    # --- Painel da Party ---
     print(" 🛡️  SUA EQUIPE:")
     for p in party:
         if p.esta_vivo():
             barra_hp = f"HP: {p.hp_atual: >3}/{p.hp_max: <3}"
             barra_mp = f"MP: {p.mp_atual: >2}/{p.mp_max: <2}"
             print(f"  ⯈ {p.nome: <20} │ {barra_hp} │ {barra_mp}")
-        else:
-            print(f"  ⯈ {p.nome: <20} │ [ ☠️ CAÍDO ]")
             
-    print("─" * tamanho)
+    print("-" * tamanho)
     
-    # --- Painel dos Inimigos ---
-    print(" 💀 INIMIGOS:")
-    for i, inimigo in enumerate(inimigos):
-        if inimigo.esta_vivo():
-            barra_hp = f"HP: {inimigo.hp_atual: >3}/{inimigo.hp_max: <3}"
-            print(f"  [{i+1}] {inimigo.nome: <18} │ {barra_hp}")
-        else:
-            print(f"  [{i+1}] {inimigo.nome: <18} │ [ ☠️ DERROTADO ]")
-            
-    print("=" * tamanho + "\n")
+    print(" 👹 INIMIGOS:")
+    for i in inimigos:
+        if i.esta_vivo():
+            barra_hp = f"HP: {i.hp_atual: >3}/{i.hp_max: <3}"
+            print(f"  ⯈ {i.nome: <20} │ {barra_hp}")
+    print("=" * tamanho)
+
 
 def menu_escolher_acao(personagem):
-    """Exibe o menu principal de turno para um personagem."""
-    tamanho = 56
-    print("┌" + "─" * (tamanho - 2) + "┐")
-    print(f"│ O que {personagem.nome} vai fazer?".ljust(tamanho - 1) + "│")
-    print("├" + "─" * (tamanho - 2) + "┤")
-    print("│ [1] ⚔️ Atacar                         [3] 🛡️ Defender  │")
-    print("│ [2] ✨ Magia                         [4] 🎒 Item     │")
-    print("└" + "─" * (tamanho - 2) + "┘")
+    """Exibe o menu principal de ações do turno para um personagem."""
+    tem_itens = bool(personagem.inventario) if hasattr(personagem, 'inventario') else False
+    print(f"\nTurno de {personagem.nome}:")
+    print("[1] Atacar")
+    print("[2] Magia")
+    print("[3] Defender")
+    print("[4] Usar Item")
     
     while True:
-        escolha = input("Ação ⯈ ")
-        if escolha in ['1', '2', '3', '4']:
-            return int(escolha)
-        print("Opção inválida! Escolha 1, 2, 3 ou 4.")
+        try:
+            escolha = int(input("\nO que fazer? ⯈ "))
+            if escolha in [1, 2, 3, 4]:
+                return escolha
+            print("❌ Opção inválida! Escolha um número de 1 a 4.")
+        except ValueError:
+            print("❌ Entrada inválida! Digite apenas números.")
+
 
 def menu_escolher_ataque(personagem):
-    """Mostra os ataques físicos disponíveis."""
-    exibir_cabecalho(f"ATAQUES: {personagem.nome}")
+    """Exibe a lista de ataques físicos do personagem."""
+    limpar_tela()
+    exibir_cabecalho("ESCOLHER ATAQUE")
+    print(f"\nAtaques de {personagem.nome}:")
     
     for i, ataque in enumerate(personagem.ataques):
-        print(f" [{i+1}] {ataque.nome} (Poder: {ataque.poder_base})")
+        print(f"[{i+1}] {ataque.nome} (Poder: {ataque.poder_base})")
         print(f"     └ {ataque.descricao}")
     print("\n [0] ⮌ Voltar")
     
@@ -77,25 +79,19 @@ def menu_escolher_ataque(personagem):
                 return None
             if 1 <= escolha <= len(personagem.ataques):
                 return personagem.ataques[escolha - 1]
-            print("Opção inválida!")
+            print("❌ Opção inválida!")
         except ValueError:
-            print("Digite um número válido!")
+            print("❌ Entrada inválida! Digite apenas números.")
+
 
 def menu_escolher_magia(personagem):
-    """Mostra as magias disponíveis e o custo de MP."""
-    exibir_cabecalho(f"MAGIAS: {personagem.nome}")
+    """Exibe a lista de magias do personagem e verifica o custo de MP."""
+    limpar_tela()
+    exibir_cabecalho("ESCOLHER MAGIA")
+    print(f"\nMagias de {personagem.nome} (MP Atual: {personagem.mp_atual}/{personagem.mp_max}):")
     
-    if not personagem.magias:
-        print("  Este personagem não possui magias.")
-        print("\n [0] ⮌ Voltar")
-        while True:
-            if input("⯈ ") == '0': return None
-            
     for i, magia in enumerate(personagem.magias):
-        mp_status = f"Custo: {magia.custo_mp} MP"
-        if personagem.mp_atual < magia.custo_mp:
-            mp_status = f"INSUFICIENTE (Custa {magia.custo_mp})"
-        print(f" [{i+1}] {magia.nome} ({mp_status})")
+        print(f"[{i+1}] {magia.nome} (Poder: {magia.poder_base} | Custo MP: {magia.custo_mp})")
         print(f"     └ {magia.descricao}")
     print("\n [0] ⮌ Voltar")
     
@@ -110,29 +106,89 @@ def menu_escolher_magia(personagem):
                     print("❌ MP insuficiente para esta magia!")
                     continue
                 return magia_escolhida
-            print("Opção inválida!")
+            print("❌ Opção inválida!")
         except ValueError:
-            print("Digite um número válido!")
+            print("❌ Entrada inválida! Digite apenas números.")
 
-def menu_escolher_alvo(inimigos):
-    """Permite ao jogador escolher qual inimigo vivo atacar."""
-    limpar_tela() # <--- Adicionámos a limpeza de ecrã aqui!
+
+def menu_escolher_alvo(alvos):
+    """
+    Permite ao jogador escolher um alvo vivo.
+    Aceita tanto a lista de 'inimigos' quanto a sua própria 'equipe'.
+    """
+    limpar_tela() 
     exibir_cabecalho("ESCOLHER ALVO")
     
-    # Cria uma lista apenas com os inimigos vivos para evitar bater em cadáveres
-    vivos = [inimigo for inimigo in inimigos if inimigo.esta_vivo()]
+    vivos = [alvo for alvo in alvos if alvo.esta_vivo()]
     
-    for i, inimigo in enumerate(vivos):
-        print(f"[{i+1}] {inimigo.nome} (HP: {inimigo.hp_atual}/{inimigo.hp_max})")
-    print("[0] Cancelar")
+    for i, alvo in enumerate(vivos):
+        print(f"[{i+1}] {alvo.nome} (HP: {alvo.hp_atual}/{alvo.hp_max})")
+    print("\n[0] Cancelar")
     
     while True:
         try:
-            escolha = int(input("\nQuem será o alvo? "))
+            escolha = int(input("\nQuem será o alvo? ⯈ "))
             if escolha == 0:
                 return None
             if 1 <= escolha <= len(vivos):
                 return vivos[escolha - 1]
-            print("Opção inválida!")
+            print("❌ Opção inválida!")
         except ValueError:
-            print("Digite um número válido!")
+            print("❌ Entrada inválida! Digite apenas números.")
+
+
+def menu_usar_item(usuario, party, inventario_total):
+    """
+    Exibe os itens disponíveis no inventário coletivo da equipe.
+    Permite escolher o item e, em seguida, o aliado alvo.
+    
+    Parâmetros:
+        usuario: o personagem cujo turno é este
+        party: lista de todos os membros da equipe (para escolher alvo)
+        inventario_total: lista de tuplas (dono, item) com todos os itens da equipe
+
+    Retorna:
+        (dono, item, alvo) se o jogador confirmar, ou None se cancelar.
+    """
+    limpar_tela()
+    exibir_cabecalho("USAR ITEM")
+    print(f"\n  Inventário da equipe:\n")
+
+    for i, (dono, item) in enumerate(inventario_total):
+        print(f"  [{i+1}] {item.nome}")
+        print(f"       └ {item.descricao}  (de: {dono.nome})")
+    print("\n  [0] ⮌ Voltar")
+
+    while True:
+        try:
+            escolha = int(input("\n  Qual item usar? ⯈ "))
+            if escolha == 0:
+                return None
+            if 1 <= escolha <= len(inventario_total):
+                dono, item_escolhido = inventario_total[escolha - 1]
+                break
+            print("❌ Opção inválida!")
+        except ValueError:
+            print("❌ Entrada inválida! Digite apenas números.")
+
+    # Itens de cura/buff sempre miram em um aliado
+    limpar_tela()
+    exibir_cabecalho("ESCOLHER ALVO DO ITEM")
+    print(f"\n  Usando: {item_escolhido.nome}")
+    print(f"  Escolha um aliado:\n")
+
+    vivos = [m for m in party if m.esta_vivo()]
+    for i, membro in enumerate(vivos):
+        print(f"  [{i+1}] {membro.nome} (HP: {membro.hp_atual}/{membro.hp_max} | MP: {membro.mp_atual}/{membro.mp_max})")
+    print("\n  [0] ⮌ Cancelar")
+
+    while True:
+        try:
+            escolha = int(input("\n  Quem receberá o item? ⯈ "))
+            if escolha == 0:
+                return None
+            if 1 <= escolha <= len(vivos):
+                return (dono, item_escolhido, vivos[escolha - 1])
+            print("❌ Opção inválida!")
+        except ValueError:
+            print("❌ Entrada inválida! Digite apenas números.")

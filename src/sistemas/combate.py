@@ -1,11 +1,6 @@
-"""
-Módulo: combate.py
-Descrição: Gerencia o fluxo de turnos, fila de ações e resolução de danos.
-Totalmente integrado com a nova interface visual limpa.
-"""
-
 import random
 import time
+import copy
 
 from src.sistemas.ia_inimiga import planejar_turno_inimigo
 from src.utils.matematica import calcular_dano
@@ -16,15 +11,34 @@ from src.utils.interface import (
     menu_escolher_acao, 
     menu_escolher_ataque, 
     menu_escolher_magia, 
-    menu_escolher_alvo
+    menu_escolher_alvo,
+    menu_usar_item
 )
 
 def aplicar_efeitos_secundarios(alvo, habilidade):
-    """Verifica e aplica efeitos secundários como redução de defesa."""
+    """Verifica e aplica efeitos secundários como redução ou aumento de defesa."""
     if hasattr(habilidade, 'efeito_secundario') and habilidade.efeito_secundario:
         if habilidade.efeito_secundario == "reduzir_defesa_alvo":
             alvo.defesa_atual = max(0, alvo.defesa_atual - habilidade.valor_efeito)
             print(f"    📉 A defesa de {alvo.nome} foi reduzida em {habilidade.valor_efeito}!")
+        elif habilidade.efeito_secundario == "aumentar_defesa_alvo":
+            alvo.defesa_atual += habilidade.valor_efeito
+            print(f"    🛡️ A defesa de {alvo.nome} aumentou em {habilidade.valor_efeito}!")
+
+def aplicar_item(usuario, alvo, item):
+    """Aplica o efeito de um item consumível sobre o alvo e exibe o resultado."""
+    if item.tipo_efeito == "cura_hp":
+        cura = min(item.valor_efeito, alvo.hp_max - alvo.hp_atual)
+        alvo.hp_atual += cura
+        print(f"  💊 {usuario.nome} usou {item.nome} em {alvo.nome} e restaurou {cura} HP!")
+    elif item.tipo_efeito == "cura_mp":
+        cura = min(item.valor_efeito, alvo.mp_max - alvo.mp_atual)
+        alvo.mp_atual += cura
+        print(f"  💙 {usuario.nome} usou {item.nome} em {alvo.nome} e restaurou {cura} MP!")
+    elif item.tipo_efeito == "buff_defesa":
+        alvo.defesa_atual += item.valor_efeito
+        alvo.defesa_base += item.valor_efeito  # Torna permanente para a batalha
+        print(f"  🛡️  {usuario.nome} usou {item.nome} em {alvo.nome}! Defesa aumentou em {item.valor_efeito}!")
 
 def iniciar_combate(party, inimigos):
     """Loop principal de uma batalha."""
@@ -37,7 +51,7 @@ def iniciar_combate(party, inimigos):
 
     while True:
         # ==========================================
-        # FASE 1: PLANEAMENTO DA EQUIPA (JOGADOR)
+        # FASE 1: PLANEJAMENTO DA EQUIPE (JOGADOR)
         # ==========================================
         fila_acoes = []
         
@@ -58,7 +72,7 @@ def iniciar_combate(party, inimigos):
                 # [1] ATACAR
                 if escolha_acao == 1:
                     habilidade = menu_escolher_ataque(personagem)
-                    if habilidade is None: continue # O jogador escolheu "Voltar"
+                    if habilidade is None: continue
                     
                     alvo = menu_escolher_alvo(inimigos)
                     if alvo is None: continue
@@ -71,11 +85,10 @@ def iniciar_combate(party, inimigos):
                     habilidade = menu_escolher_magia(personagem)
                     if habilidade is None: continue
                     
-                    # Se for magia de cura, o alvo é um aliado
-                    if habilidade.elemento == "cura":
-                        print("\n  [Magia de Suporte] Alvo automático: Aliado com menor HP.")
-                        alvo = min([p for p in party if p.esta_vivo()], key=lambda p: p.hp_atual)
-                        time.sleep(1.5)
+                    if habilidade.alvo_aliado:
+                        print(f"\n  [Magia de Suporte] Escolha um aliado para {habilidade.nome}:")
+                        alvo = menu_escolher_alvo(party) 
+                        if alvo is None: continue
                     else:
                         alvo = menu_escolher_alvo(inimigos)
                         if alvo is None: continue
@@ -89,25 +102,46 @@ def iniciar_combate(party, inimigos):
                     fila_acoes.append({"ator": personagem, "habilidade": None, "alvo": None, "tipo": "defesa"})
                     acao_confirmada = True
                     
-                # [4] ITEM (Pode expandir no futuro)
+                # [4] USAR ITEM
                 elif escolha_acao == 4:
-                    print("\n  🎒 O inventário está vazio no momento!")
-                    time.sleep(1.5)
+                    # Junta todo o inventário da equipe para exibir no menu
+                    inventario_total = []
+                    for membro in party:
+                        for item in membro.inventario:
+                            inventario_total.append((membro, item))
+
+                    if not inventario_total:
+                        print("\n  🎒 O inventário está vazio!")
+                        time.sleep(1.5)
+                        continue
+
+                    resultado = menu_usar_item(personagem, party, inventario_total)
+                    if resultado is None:
+                        continue  # Jogador cancelou, volta ao menu de ações
+
+                    dono, item, alvo = resultado
+                    # Remove o item do inventário de quem o carregava
+                    dono.inventario.remove(item)
+                    # Registra a ação de item na fila (resolve na fase de resolução)
+                    fila_acoes.append({"ator": personagem, "habilidade": None, "alvo": alvo, "tipo": "item", "item": item, "dono_item": dono})
+                    acao_confirmada = True
 
         # ==========================================
-        # FASE 2: PLANEAMENTO INIMIGO (IA)
+        # FASE 2: PLANEJAMENTO INIMIGO (IA)
         # ==========================================
         for inimigo in inimigos:
             if inimigo.esta_vivo():
                 inimigo.resetar_defesa()
                 acao_inimiga = planejar_turno_inimigo(inimigo, party)
                 if acao_inimiga:
+                    # CORREÇÃO BUG 1: garante que a chave 'ator' existe na ação inimiga
+                    # para que a ordenação por agilidade na fase de iniciativa não quebre.
+                    acao_inimiga["ator"] = inimigo
                     fila_acoes.append(acao_inimiga)
 
         # ==========================================
         # FASE 3: INICIATIVA (ORDENAÇÃO)
         # ==========================================
-        # Ordena a fila de ações pela agilidade do ator (do mais rápido para o mais lento)
         fila_acoes.sort(key=lambda acao: acao["ator"].agilidade, reverse=True)
 
         # ==========================================
@@ -115,26 +149,30 @@ def iniciar_combate(party, inimigos):
         # ==========================================
         limpar_tela()
         exibir_cabecalho(f"RESOLUÇÃO DO TURNO {turno_numero}")
-        print() # Espaço para o log de batalha
+        print()
         
         for acao in fila_acoes:
             ator = acao["ator"]
             
-            # Se o ator morreu antes de chegar a sua vez, ele perde a ação
             if not ator.esta_vivo():
                 continue
 
-            # Se a ação foi "Defender"
+            # Ação: DEFENDER
             if acao["tipo"] == "defesa":
                 print(f"  🛡️  {ator.nome} assumiu uma postura defensiva!")
                 time.sleep(1)
+                continue
+
+            # Ação: USAR ITEM
+            if acao["tipo"] == "item":
+                aplicar_item(ator, acao["alvo"], acao["item"])
+                time.sleep(1.5)
                 continue
 
             alvo = acao["alvo"]
             habilidade = acao["habilidade"]
             tipo = acao["tipo"]
 
-            # Se o alvo morreu antes de receber o ataque
             if not alvo.esta_vivo():
                 print(f"  💨 {ator.nome} tentou usar {habilidade.nome}, mas o alvo já estava caído!")
                 time.sleep(1)
@@ -151,6 +189,16 @@ def iniciar_combate(party, inimigos):
                 time.sleep(1.5)
                 continue
 
+            # Magias de Suporte (Buffs como Pele de Pedra)
+            if tipo == "magico" and habilidade.efeito_secundario == "aumentar_defesa_alvo":
+                if ator.gastar_mp(habilidade.custo_mp):
+                    print(f"  ✨ {ator.nome} conjurou {habilidade.nome} em {alvo.nome}!")
+                    aplicar_efeitos_secundarios(alvo, habilidade)
+                else:
+                    print(f"  💧 {ator.nome} tentou conjurar {habilidade.nome}, mas está sem MP!")
+                time.sleep(1.5)
+                continue
+
             # Ataques e Magias de Dano
             if tipo == "magico":
                 if not ator.gastar_mp(habilidade.custo_mp):
@@ -158,14 +206,11 @@ def iniciar_combate(party, inimigos):
                     time.sleep(1)
                     continue
 
-            # Rolagem de chance de acerto
             if random.randint(1, 100) > habilidade.chance_acerto:
                 print(f"  ❌ {ator.nome} usou {habilidade.nome}, mas errou o ataque!")
             else:
-                # CORREÇÃO: Desempacotamento da tupla implementado aqui!
                 dano, foi_critico, foi_fraqueza = calcular_dano(ator, alvo, habilidade, tipo)
                 
-                # Feedback visual
                 if foi_critico:
                     print("  🎯 ACERTO CRÍTICO!")
                 if foi_fraqueza:
@@ -174,13 +219,12 @@ def iniciar_combate(party, inimigos):
                 alvo.receber_dano(dano)
                 print(f"  ⚔️  {ator.nome} usou {habilidade.nome} em {alvo.nome} e causou {dano} de dano!")
                 
-                # Aplica quebra de escudos, buffs, etc.
                 aplicar_efeitos_secundarios(alvo, habilidade)
 
                 if not alvo.esta_vivo():
                     print(f"  ☠️  {alvo.nome} foi derrotado!")
 
-            time.sleep(1.5) # Pausa dramática para o jogador ler o texto
+            time.sleep(1.5)
 
         # ==========================================
         # FASE 5: CHECAGEM DE FIM DE COMBATE
@@ -189,7 +233,7 @@ def iniciar_combate(party, inimigos):
         inimigos_vivos = any(i.esta_vivo() for i in inimigos)
 
         if not party_viva:
-            print("\n  [!] A SUA EQUIPA FOI DIZIMADA...")
+            print("\n  [!] A SUA EQUIPE FOI DIZIMADA...")
             time.sleep(2)
             return False
             

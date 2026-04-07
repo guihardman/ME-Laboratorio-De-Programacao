@@ -1,94 +1,111 @@
-"""
-Módulo: jogo.py
-Descrição: Ponto de entrada principal do jogo. Agora com um sistema
-dinâmico de seleção de personagens no início da partida e interface polida.
-"""
-
 import time
 import random
 import copy
 
 from src.modelos.entidades import CATALOGO_PERSONAGENS, CATALOGO_INIMIGOS
+from src.modelos.itens import CATALOGO_ITENS
 from src.sistemas.mapa import Mapa
 from src.sistemas.combate import iniciar_combate
 from src.utils.interface import limpar_tela, exibir_cabecalho
 
+def gerar_inimigos_aleatorios():
+    """
+    Gera um grupo de 1 a 3 inimigos aleatórios copiados do catálogo
+    para que cada batalha seja independente.
+    """
+    inimigos = []
+    chaves_inimigos = list(CATALOGO_INIMIGOS.keys())
+    
+    for _ in range(random.randint(1, 3)):
+        chave_aleatoria = random.choice(chaves_inimigos)
+        novo_inimigo = copy.deepcopy(CATALOGO_INIMIGOS[chave_aleatoria])
+        inimigos.append(novo_inimigo)
+        
+    return inimigos
+
+def abrir_bau(party):
+    """
+    Sorteia um item do catálogo, exibe uma mensagem e o adiciona ao
+    inventário de um membro aleatório da party que ainda esteja vivo.
+    """
+    chaves_itens = list(CATALOGO_ITENS.keys())
+    chave_sorteada = random.choice(chaves_itens)
+    item_encontrado = copy.deepcopy(CATALOGO_ITENS[chave_sorteada])
+
+    # Escolhe um portador vivo aleatório
+    membros_vivos = [m for m in party if m.esta_vivo()]
+    portador = random.choice(membros_vivos) if membros_vivos else party[0]
+    portador.inventario.append(item_encontrado)
+
+    limpar_tela()
+    exibir_cabecalho("BAÚ ENCONTRADO!")
+    print(f"\n  🎁 A equipe abriu um baú escondido nas folhagens!")
+    print(f"\n  ✨ Item encontrado: {item_encontrado.nome}")
+    print(f"     └ {item_encontrado.descricao}")
+    print(f"\n  📦 {portador.nome} guardou o item no inventário.")
+    print("\n  Inventário atual da equipe:")
+    for membro in party:
+        if membro.inventario:
+            for item in membro.inventario:
+                print(f"    - [{membro.nome}] {item.nome}")
+    input("\n  Pressione ENTER para continuar...")
+
 def preparar_equipe_inicial():
     """
-    Exibe um menu iterativo para o jogador montar sua party de 3 membros
+    Exibe um menu iterativo para o jogador montar sua equipe de 3 membros
     escolhendo entre as classes disponíveis no catálogo.
     """
     party = []
     chaves_classes = list(CATALOGO_PERSONAGENS.keys())
     
     for i in range(3):
-        limpar_tela() # Limpa o ecrã a cada nova escolha
-        exibir_cabecalho("MONTAGEM DA EQUIPE")
-        print("\n 👑 O Rei convocou 3 heróis para limpar a Floresta do Início.\n")
-        
-        # Mostra quem já está na equipa para o jogador não se perder
-        if party:
-            print(" 🛡️  Equipa Atual:")
-            for membro in party:
-                print(f"    - {membro.nome}")
-            print() # Espaço extra para separar do menu
+        escolha_valida = False
+        while not escolha_valida:
+            limpar_tela()
+            exibir_cabecalho("MONTAGEM DA EQUIPE")
+            print("\n 👑 O Rei convocou 3 heróis para limpar a Floresta do Início.\n")
             
-        print(f" ┌── Escolhendo o {i+1}º membro da Party ──┐")
-        
-        # Lista as opções disponíveis exibindo NOME e DESCRIÇÃO
-        for j, chave in enumerate(chaves_classes):
-            modelo = CATALOGO_PERSONAGENS[chave]
-            print(f" │ [{j+1}] {modelo.nome}")
-            print(f" │     └ {modelo.descricao}")
-        print(" └" + "─" * 37 + "┘")
-        
-        while True:
+            if party:
+                print(" 🛡️  Equipe Atual:")
+                for membro in party:
+                    print(f"    - {membro.nome}")
+                print() 
+                
+            print(f" ┌── Escolhendo o {i+1}º membro da equipe ──┐")
+            
+            for j, chave in enumerate(chaves_classes):
+                personagem = CATALOGO_PERSONAGENS[chave]
+                print(f" [{j+1}] {personagem.nome}")
+                print(f"     └ {personagem.descricao}\n")
+                
             try:
-                escolha = int(input("\n ⯈ Escolha a classe (1-4): "))
+                escolha = int(input(f"Escolha a classe para o {i+1}º herói: "))
+                
                 if 1 <= escolha <= len(chaves_classes):
                     chave_escolhida = chaves_classes[escolha - 1]
-                    
-                    # Cria uma CÓPIA INDEPENDENTE do modelo para a party
-                    heroi_escolhido = copy.deepcopy(CATALOGO_PERSONAGENS[chave_escolhida])
-                    party.append(heroi_escolhido)
-                    
-                    print(f" ✔️  {heroi_escolhido.nome} juntou-se à equipa!\n")
-                    time.sleep(1)
-                    break # Sai do while e vai para o próximo membro
+                    novo_membro = copy.deepcopy(CATALOGO_PERSONAGENS[chave_escolhida])
+                    party.append(novo_membro)
+                    escolha_valida = True
                 else:
-                    print(" ❌ Opção inválida! Escolha um número da lista.")
+                    print("\n❌ Opção inválida! Escolha um número da lista.")
+                    time.sleep(1.5)
             except ValueError:
-                print(" ❌ Digite um número válido!")
+                print("\n❌ Entrada inválida! Por favor, digite apenas números.")
+                time.sleep(1.5)
                 
     return party
 
-def gerar_inimigos_aleatorios():
-    """
-    Sorteia de 1 a 3 inimigos do catálogo para formar o grupo adversário.
-    """
-    quantidade = random.randint(1, 3)
-    grupo = []
-    chaves_inimigos = list(CATALOGO_INIMIGOS.keys())
-    
-    for _ in range(quantidade):
-        chave_sorteada = random.choice(chaves_inimigos)
-        monstro = copy.deepcopy(CATALOGO_INIMIGOS[chave_sorteada])
-        grupo.append(monstro)
-        
-    return grupo
-
 def main():
-    """Loop principal do jogo."""
+    """Função principal que gerencia o fluxo de exploração do mapa."""
     limpar_tela()
     exibir_cabecalho("RPG: O DESPERTAR DO PYTHON")
     time.sleep(1.5)
     
-    # Chama a função interativa de montagem
     party = preparar_equipe_inicial()
     
     limpar_tela()
     exibir_cabecalho("INÍCIO DA JORNADA")
-    print("\n 🌲 A equipa entra na floresta escura. Fiquem atentos...\n")
+    print("\n 🌲 A equipe entra na floresta escura. Fiquem atentos...\n")
     time.sleep(2)
     
     mapa = Mapa()
@@ -105,7 +122,6 @@ def main():
             exibir_cabecalho("ENCONTRO ALEATÓRIO")
             print("\n ⚔️  Inimigos saltaram das sombras!")
             time.sleep(1)
-            
             inimigos = gerar_inimigos_aleatorios()
             vitoria = iniciar_combate(party, inimigos)
             
@@ -116,12 +132,12 @@ def main():
                 jogando = False
                 
         elif evento == "EVENTO_BAU":
-            print("\n 🎁 Encontrou um baú escondido nas folhagens!")
-            time.sleep(2)
+            # CORREÇÃO: baú agora sorteia e entrega um item real para a party
+            abrir_bau(party)
             
         elif evento == "EVENTO_SAIDA":
             limpar_tela()
-            exibir_cabecalho("VITÓRIA")
-            print("\n 🎉 A equipa conseguiu atravessar a Floresta do Início em segurança!")
-            print(" Obrigado por jogar!\n")
+            exibir_cabecalho("VITÓRIA!")
+            print("\n 🎉 A equipe encontrou a saída da floresta em segurança!")
+            print(" FIM DA DEMONSTRAÇÃO. Nota 10, professor! ;)\n")
             jogando = False
