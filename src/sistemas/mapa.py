@@ -78,10 +78,6 @@ class Mapa:
         else:
             return "INVALIDO"
 
-        # Proteção extra: Checa se saiu dos limites da matriz
-        if novo_y < 0 or novo_y >= len(self.grade) or novo_x < 0 or novo_x >= len(self.grade[0]):
-            return "BLOQUEADO"
-
         # Checa colisão com parede usando a matriz original (não a visual)
         celula_destino = self.grade[novo_y][novo_x]
         if celula_destino == '#':

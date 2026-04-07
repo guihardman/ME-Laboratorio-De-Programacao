@@ -18,11 +18,12 @@ class Magia:
     Pode conter efeitos secundários que afetam o alvo e definir se deve mirar em aliados.
     """
     # NOVO: Adicionamos o parâmetro alvo_aliado (padrão é False para magias de dano)
-    def __init__(self, nome, descricao, elemento, poder_base, custo_mp, efeito_secundario=None, valor_efeito=0, alvo_aliado=False):
+    def __init__(self, nome, descricao, elemento, custo_mp, poder_base, chance_acerto=100, efeito_secundario=None, valor_efeito=0, alvo_aliado=False):
         self.nome = nome
         self.descricao = descricao
         self.elemento = elemento.lower()
         self.poder_base = poder_base
+        self.chance_acerto = chance_acerto
         self.custo_mp = custo_mp
         self.efeito_secundario = efeito_secundario
         self.valor_efeito = valor_efeito
