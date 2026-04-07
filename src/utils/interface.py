@@ -137,13 +137,12 @@ def menu_escolher_alvo(alvos):
             print("❌ Entrada inválida! Digite apenas números.")
 
 
-def menu_usar_item(usuario, party, inventario_total):
+def menu_usar_item(party, inventario_total):
     """
     Exibe os itens disponíveis no inventário coletivo da equipe.
     Permite escolher o item e, em seguida, o aliado alvo.
     
     Parâmetros:
-        usuario: o personagem cujo turno é este
         party: lista de todos os membros da equipe (para escolher alvo)
         inventario_total: lista de tuplas (dono, item) com todos os itens da equipe
 

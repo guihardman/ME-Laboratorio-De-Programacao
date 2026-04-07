@@ -114,9 +114,9 @@ def iniciar_combate(party, inimigos):
                         time.sleep(1.5)
                         continue
 
-                    resultado = menu_usar_item(personagem, party, inventario_total)
+                    resultado = menu_usar_item(party, inventario_total)
                     if resultado is None:
-                        continue  # Jogador cancelou, volta ao menu de ações
+                        continue
 
                     dono, item, alvo = resultado
                     # Remove o item do inventário de quem o carregava
@@ -171,7 +171,7 @@ def iniciar_combate(party, inimigos):
             tipo = acao["tipo"]
 
             if not alvo.esta_vivo():
-                print(f"  💨 {ator.nome} tentou usar {habilidade.nome}, mas o alvo já estava caído!")
+                print(f"  💨 {ator.nome} tentou usar {item.nome}, mas o alvo já estava caído!")
                 time.sleep(1)
                 continue
 
