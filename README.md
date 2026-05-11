@@ -36,7 +36,7 @@ A navegação ocorre numa matriz bidimensional (grade). O jogador é representad
 | `#` | **Obstáculo** | Bloqueia o movimento. Bater numa parede consome a ação. |
 | `.` | **Caminho Livre** | Permite o avanço. Cada passo rola um "dado invisível" para Encontros Aleatórios. |
 | `B` | **Baú** | Interação automática ao entrar na célula. (Expansível para inventário no futuro). |
-| `S` | **Saída/Boss** | Objetivo final do mapa. |
+| `S` | **Saída** | Objetivo final do mapa. |
 
 **Movimentação:** Digite `W` (Cima), `A` (Esquerda), `S` (Baixo) ou `D` (Direita) e pressione `ENTER`. Maiúsculas ou minúsculas são aceitas pelo sistema.
 
